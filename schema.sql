@@ -1,0 +1,46 @@
+use percona
+
+CREATE VIEW percona.rocksdb_sst_detail AS
+SELECT  concat(DDL.TABLE_SCHEMA, '.', DDL.TABLE_NAME, '->', ifnull(DDL.INDEX_NAME, 'default')) as "INDEX",  DDL.CF  as "CF",
+    MAP.SST_NAME, MAP.NUM_ROWS,MAP.DATA_SIZE,
+    MAP.ENTRY_DELETES , MAP.ENTRY_SINGLEDELETES , MAP.ENTRY_MERGES, MAP.ENTRY_OTHERS
+FROM information_schema.ROCKSDB_DDL DDL
+  JOIN information_schema.ROCKSDB_INDEX_FILE_MAP MAP
+  ON (MAP.INDEX_NUMBER = DDL.INDEX_NUMBER)
+ORDER BY 1;
+
+CREATE VIEW percona.rocksdb_cf_info AS
+SELECT   DDL.CF, count(MAP.SST_NAME), sum(MAP.NUM_ROWS), round(sum(MAP.DATA_SIZE)),
+    sum(MAP.ENTRY_DELETES) , sum(MAP.ENTRY_SINGLEDELETES) , sum(MAP.ENTRY_MERGES), sum(MAP.ENTRY_OTHERS)
+FROM information_schema.ROCKSDB_DDL DDL
+  JOIN information_schema.ROCKSDB_INDEX_FILE_MAP MAP
+  ON (MAP.INDEX_NUMBER = DDL.INDEX_NUMBER)
+group BY 1;
+
+CREATE VIEW percona.rocksdb_sst_agg_info AS
+SELECT concat(DDL.TABLE_SCHEMA, '.', DDL.TABLE_NAME, '->', ifnull(DDL.INDEX_NAME, 'default')) as "INDEX",  DDL.CF  as "CF",
+    MAP.SST_NAME, sum(MAP.NUM_ROWS), sum(MAP.DATA_SIZE),
+    sum(MAP.ENTRY_DELETES) , sum(MAP.ENTRY_SINGLEDELETES) , sum(MAP.ENTRY_MERGES), sum(MAP.ENTRY_OTHERS)
+FROM information_schema.ROCKSDB_DDL DDL
+  JOIN information_schema.ROCKSDB_INDEX_FILE_MAP MAP
+  ON (MAP.INDEX_NUMBER = DDL.INDEX_NUMBER)
+GROUP BY 1, 3;
+
+CREATE VIEW perconca.rocksdb_ix_info AS
+  SELECT DDL.CF,MAP.INDEX_NUMBER, DDL.INDEX_NAME, round(sum(MAP.DATA_SIZE)/1024/1024) as  "DATA_SIZE"
+  FROM information_schema.ROCKSDB_DDL DDL
+    JOIN information_schema.ROCKSDB_INDEX_FILE_MAP MAP
+    ON (MAP.INDEX_NUMBER = DDL.INDEX_NUMBER)
+  GROUP BY MAP.INDEX_NUMBER;
+
+CREATE VIEW percona.rocksdb_last_snapshot AS
+select from_unixtime(VALUE) from ROCKSDB_DBSTATS WHERE STAT_TYPE = 'DB_OLDEST_SNAPSHOT_TIME';
+
+CREATE VIEW percona.rocksdb_user_cf_stats AS
+select * from ROCKSDB_CFSTATS where CF_NAME NOT IN ('__system__','default');
+
+CRETE VIEW percona.rocksdb_gl_info AS
+select * from ROCKSDB_GLOBAL_INFO where TYPE NOT IN ('BINLOG');
+
+CREATE VIEW percona.rocksdb_cf_agg_locks AS
+select DDL.CF,count(*) from ROCKSDB_LOCKS LK JOIN ROCKSDB_DDL DDL ON  (LK.COLUMN_FAMILY_ID = DDL.COLUMN_FAMILY)  group by COLUMN_FAMILY_ID;
