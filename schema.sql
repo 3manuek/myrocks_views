@@ -39,7 +39,7 @@ select from_unixtime(VALUE) from ROCKSDB_DBSTATS WHERE STAT_TYPE = 'DB_OLDEST_SN
 CREATE VIEW percona.rocksdb_user_cf_stats AS
 select * from ROCKSDB_CFSTATS where CF_NAME NOT IN ('__system__','default');
 
-CRETE VIEW percona.rocksdb_gl_info AS
+CREATE VIEW percona.rocksdb_gl_info AS
 select * from ROCKSDB_GLOBAL_INFO where TYPE NOT IN ('BINLOG');
 
 CREATE VIEW percona.rocksdb_cf_agg_locks AS
