@@ -26,7 +26,7 @@ FROM information_schema.ROCKSDB_DDL DDL
   ON (MAP.INDEX_NUMBER = DDL.INDEX_NUMBER)
 GROUP BY 1, 3;
 
-CREATE OR REPLACE VIEW perconca.rocksdb_ix_info AS
+CREATE OR REPLACE VIEW percona.rocksdb_ix_info AS
   SELECT DDL.CF,MAP.INDEX_NUMBER, DDL.INDEX_NAME, round(sum(MAP.DATA_SIZE)/1024/1024) as  "DATA_SIZE"
   FROM information_schema.ROCKSDB_DDL DDL
     JOIN information_schema.ROCKSDB_INDEX_FILE_MAP MAP
