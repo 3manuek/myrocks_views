@@ -34,13 +34,17 @@ CREATE OR REPLACE VIEW percona.rocksdb_ix_info AS
   GROUP BY MAP.INDEX_NUMBER;
 
 CREATE OR REPLACE VIEW percona.rocksdb_last_snapshot AS
-select from_unixtime(VALUE) from ROCKSDB_DBSTATS WHERE STAT_TYPE = 'DB_OLDEST_SNAPSHOT_TIME';
+SELECT from_unixtime(VALUE) 
+  FROM information_schema.ROCKSDB_DBSTATS WHERE STAT_TYPE = 'DB_OLDEST_SNAPSHOT_TIME';
 
 CREATE OR REPLACE VIEW percona.rocksdb_user_cf_stats AS
-select * from ROCKSDB_CFSTATS where CF_NAME NOT IN ('__system__','default');
+SELECT * FROM information_schema.ROCKSDB_CFSTATS where CF_NAME NOT IN ('__system__','default');
 
 CREATE OR REPLACE VIEW percona.rocksdb_gl_info AS
-select * from ROCKSDB_GLOBAL_INFO where TYPE NOT IN ('BINLOG');
+SELECT * FROM information_schema.ROCKSDB_GLOBAL_INFO where TYPE NOT IN ('BINLOG');
 
 CREATE OR REPLACE VIEW percona.rocksdb_cf_agg_locks AS
-select DDL.CF,count(*) from ROCKSDB_LOCKS LK JOIN ROCKSDB_DDL DDL ON  (LK.COLUMN_FAMILY_ID = DDL.COLUMN_FAMILY)  group by COLUMN_FAMILY_ID;
+SELECT DDL.CF,count(*) 
+  FROM information_schema.ROCKSDB_LOCKS LK 
+    JOIN information_schema.ROCKSDB_DDL DDL ON  (LK.COLUMN_FAMILY_ID = DDL.COLUMN_FAMILY)
+  GROUP BY COLUMN_FAMILY_ID;
