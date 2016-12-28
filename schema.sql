@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS percona;
 use percona
 
 CREATE OR REPLACE VIEW percona.rocksdb_sst_detail AS
